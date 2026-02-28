@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conceptual Framework — IoT Research</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #06090f;
+    --panel: #0d1320;
+    --border: #1a2540;
+    --input: #00e5ff;
+    --process: #7c3aed;
+    --output: #10b981;
+    --text: #e2e8f0;
+    --muted: #64748b;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,255,0.018) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,0.018) 1px, transparent 1px);
+    background-size: 44px 44px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .scanline {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(0,229,255,0.08), transparent);
+    animation: scan 10s linear infinite;
+    pointer-events: none;
+    z-index: 9999;
+  }
+  @keyframes scan { 0% { top: 0; } 100% { top: 100vh; } }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(6,9,15,0.94);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 32px;
+    height: 56px;
+  }
+
+  .nav-logo {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--input);
+    text-transform: uppercase;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .nav-tabs { display: flex; gap: 3px; }
+
+  .nav-tab {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 6px 13px;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    cursor: pointer;
+    color: var(--muted);
+    transition: all 0.2s;
+    background: none;
+    user-select: none;
+    white-space: nowrap;
+  }
+  .nav-tab:hover { color: var(--text); border-color: var(--border); }
+  .nav-tab.active { color: #fff; border-color: var(--border); background: var(--panel); }
+
+  /* PAGES */
+  .page { display: none; padding-top: 56px; min-height: 100vh; position: relative; z-index: 1; }
+  .page.active { display: block; }
+
+  /* ===== LANDING ===== */
+  .landing-hero {
+    text-align: center;
+    padding: 90px 24px 56px;
+  }
+
+  .landing-eyebrow {
+    display: inline-block;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--input);
+    border: 1px solid rgba(0,229,255,0.25);
+    padding: 5px 16px;
+    margin-bottom: 28px;
+    text-transform: uppercase;
+  }
+
+  .landing-title {
+    font-size: clamp(3rem, 8vw, 7rem);
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -3px;
+    margin-bottom: 24px;
+  }
+  .landing-title .line1 {
+    display: block;
+    background: linear-gradient(135deg, #fff 0%, #475569 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .landing-title .line2 {
+    display: block;
+    background: linear-gradient(135deg, var(--input) 0%, #7c3aed 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .landing-sub {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+    max-width: 480px;
+    margin: 0 auto 64px;
+    line-height: 1.8;
+  }
+
+  .projects-grid {
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: 0 24px 100px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+  }
+
+  .project-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 32px 26px;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp 0.6s ease both;
+  }
+  .project-card:nth-child(1) { animation-delay: 0.1s; --ca: #00e5ff; }
+  .project-card:nth-child(2) { animation-delay: 0.2s; --ca: #f59e0b; }
+  .project-card:nth-child(3) { animation-delay: 0.3s; --ca: #10b981; }
+
+  .project-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--ca);
+    box-shadow: 0 0 18px var(--ca);
+  }
+
+  .project-card:hover {
+    border-color: var(--ca);
+    transform: translateY(-5px);
+    box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+  }
+
+  .card-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: var(--ca);
+    margin-bottom: 18px;
+    text-transform: uppercase;
+  }
+
+  .card-icon {
+    width: 48px; height: 48px;
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 18px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+  }
+
+  .card-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.35;
+    margin-bottom: 12px;
+  }
+
+  .card-desc {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    line-height: 1.75;
+  }
+
+  .card-arrow {
+    margin-top: 26px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--ca);
+    opacity: 0.65;
+    transition: opacity 0.2s;
+  }
+  .project-card:hover .card-arrow { opacity: 1; }
+  .card-arrow-line { flex: 1; height: 1px; background: var(--ca); opacity: 0.3; }
+
+  /* ===== IPO PAGES ===== */
+  .ipo-page-header {
+    padding: 44px 32px 28px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .ipo-back {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    cursor: pointer;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    transition: color 0.2s;
+    margin-bottom: 14px;
+  }
+  .ipo-back:hover { color: var(--text); }
+
+  .ipo-page-title {
+    font-size: clamp(1.3rem, 2.8vw, 2rem);
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.2;
+    max-width: 680px;
+  }
+
+  .ipo-page-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    padding: 5px 13px;
+    border-radius: 2px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    align-self: flex-start;
+    margin-top: 4px;
+  }
+
+  .ipo-wrapper {
+    max-width: 1280px;
+    margin: 44px auto;
+    padding: 0 24px;
+  }
+
+  .ipo-flow {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr auto 1fr;
+    align-items: start;
+  }
+
+  .connector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 58px;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .arrow-track {
+    width: 68px; height: 2px;
+    background: linear-gradient(90deg, var(--border), var(--muted));
+    position: relative;
+    overflow: visible;
+  }
+  .arrow-track::after {
+    content: '▶';
+    position: absolute;
+    right: -9px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 10px;
+    color: var(--muted);
+  }
+
+  .arrow-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .arrow-track .dot {
+    position: absolute;
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    top: 50%;
+    transform: translateY(-50%);
+    animation: flowDot 2s linear infinite;
+  }
+  .connector-ip .dot { background: var(--input); }
+  .connector-po .dot { background: var(--process); animation-delay: 1s; }
+
+  @keyframes flowDot {
+    0% { left: 0; opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { left: 100%; opacity: 0; }
+  }
+
+  .column {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    animation: fadeUp 0.5s ease both;
+  }
+  .column:nth-child(1) { animation-delay: 0.1s; }
+  .column:nth-child(3) { animation-delay: 0.22s; }
+  .column:nth-child(5) { animation-delay: 0.34s; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(22px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .input-col  { border-top: 2px solid var(--input); }
+  .process-col { border-top: 2px solid var(--process); }
+  .output-col  { border-top: 2px solid var(--output); }
+
+  .col-header {
+    padding: 20px 22px 16px;
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .col-icon {
+    width: 40px; height: 40px;
+    border-radius: 3px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .input-col  .col-icon { background: rgba(0,229,255,0.08);  border: 1px solid rgba(0,229,255,0.22);  box-shadow: 0 0 16px rgba(0,229,255,0.12); }
+  .process-col .col-icon { background: rgba(124,58,237,0.08); border: 1px solid rgba(124,58,237,0.22); box-shadow: 0 0 16px rgba(124,58,237,0.12); }
+  .output-col  .col-icon { background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.22); box-shadow: 0 0 16px rgba(16,185,129,0.12); }
+
+  .col-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+  .input-col  .col-label { color: var(--input); }
+  .process-col .col-label { color: var(--process); }
+  .output-col  .col-label { color: var(--output); }
+
+  .col-title { font-size: 16px; font-weight: 800; color: #fff; }
+
+  .items-list { padding: 14px 0; }
+
+  .item {
+    padding: 12px 22px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    transition: background 0.2s;
+  }
+  .item:last-child { border-bottom: none; }
+  .item:hover { background: rgba(255,255,255,0.025); }
+
+  .item-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    margin-top: 6px;
+    flex-shrink: 0;
+  }
+  .input-col  .item-dot { background: var(--input);   box-shadow: 0 0 5px var(--input); }
+  .process-col .item-dot { background: var(--process); box-shadow: 0 0 5px var(--process); }
+  .output-col  .item-dot { background: var(--output);  box-shadow: 0 0 5px var(--output); }
+
+  .item-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #cbd5e1;
+    line-height: 1.35;
+    margin-bottom: 3px;
+  }
+  .item-desc {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* Summary */
+  .summary {
+    max-width: 1280px;
+    margin: 0 auto 80px;
+    padding: 0 24px;
+  }
+
+  .summary-bar {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 24px 30px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .summary-bar::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--input), var(--process), var(--output));
+  }
+
+  .stat-num { font-size: 28px; font-weight: 800; }
+  .stat-label { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 1px; margin-top: 3px; }
+  .stat:nth-child(1) .stat-num { color: var(--input); }
+  .stat:nth-child(2) .stat-num { color: var(--process); }
+  .stat:nth-child(3) .stat-num { color: var(--output); }
+
+  @media (max-width: 960px) {
+    .projects-grid { grid-template-columns: 1fr; }
+    .ipo-flow { grid-template-columns: 1fr; }
+    .connector { flex-direction: row; padding-top: 0; padding: 10px 0; }
+    .arrow-track { width: 40px; }
+    .summary-bar { grid-template-columns: 1fr; }
+    nav { padding: 0 16px; }
+    .nav-logo { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="scanline"></div>
+
+<nav>
+  <div class="nav-logo" onclick="showPage('landing')">IoT Research</div>
+  <div class="nav-tabs">
+    <div class="nav-tab active" onclick="showPage('landing')">Overview</div>
+    <div class="nav-tab" onclick="showPage('p1')">Extension Cord</div>
+    <div class="nav-tab" onclick="showPage('p2')">Borrowing System</div>
+    <div class="nav-tab" onclick="showPage('p3')">Footstep Energy</div>
+  </div>
+</nav>
+
+<!-- ===== LANDING ===== -->
+<div class="page active" id="page-landing">
+  <div class="landing-hero">
+    <div class="landing-eyebrow">Research Portfolio · IoT Systems</div>
+    <h1 class="landing-title">
+      <span class="line1">Conceptual</span>
+      <span class="line2">Framework</span>
+    </h1>
+    <p class="landing-sub">Three interconnected IoT systems designed to advance energy management, resource sharing, and sustainable energy generation.</p>
+  </div>
+
+  <div class="projects-grid">
+
+    <div class="project-card" onclick="showPage('p1')">
+      <div class="card-num">Project 01</div>
+      <div class="card-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00e5ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+        </svg>
+      </div>
+      <div class="card-title">IoT-Enabled Smart Extension Cord</div>
+      <div class="card-desc">Real-time electricity monitoring per outlet with cost estimation and usage analytics via ESP32 and cloud infrastructure.</div>
+      <div class="card-arrow">
+        <span>View IPO Model</span>
+        <div class="card-arrow-line"></div>
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </div>
+    </div>
+
+    <div class="project-card" onclick="showPage('p2')">
+      <div class="card-num">Project 02</div>
+      <div class="card-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+      </div>
+      <div class="card-title">Smart IoT-Based Borrowing System</div>
+      <div class="card-desc">Automated item reservation and smart locker management with mobile app integration, authentication, and transaction logging.</div>
+      <div class="card-arrow">
+        <span>View IPO Model</span>
+        <div class="card-arrow-line"></div>
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </div>
+    </div>
+
+    <div class="project-card" onclick="showPage('p3')">
+      <div class="card-num">Project 03</div>
+      <div class="card-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+        </svg>
+      </div>
+      <div class="card-title">IoT-Integrated Piezoelectric Footstep Energy Harvesting System</div>
+      <div class="card-desc">Converts mechanical energy from human footsteps into usable electricity with real-time monitoring and sustainability awareness.</div>
+      <div class="card-arrow">
+        <span>View IPO Model</span>
+        <div class="card-arrow-line"></div>
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== PROJECT 1 ===== -->
+<div class="page" id="page-p1">
+  <div class="ipo-page-header">
+    <div>
+      <div class="ipo-back" onclick="showPage('landing')">
+        <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        Back to Overview
+      </div>
+      <div class="ipo-page-title">IoT-Enabled Smart Extension Cord</div>
+    </div>
+    <div class="ipo-page-badge" style="background:rgba(0,229,255,0.07);border:1px solid rgba(0,229,255,0.28);color:var(--input);">IPO Model · Project 01</div>
+  </div>
+
+  <div class="ipo-wrapper">
+    <div class="ipo-flow">
+      <!-- INPUT -->
+      <div class="column input-col">
+        <div class="col-header">
+          <div class="col-icon"><svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#00e5ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+          <div><div class="col-label">Phase 01</div><div class="col-title">Input</div></div>
+        </div>
+        <div class="items-list">
+          <div class="item"><div class="item-dot"></div><div><div class="item-title">Electrical Power</div><div class="item-desc">Consumed by connected appliances at each outlet</div></div></div>
+          <div class="item"><div class="item-dot"></div><div><div class="item-title">Voltage & Current Signals</div><div class="item-desc">Raw analog data from hardware sensors (CT + voltage)</div></div></div>
+          <div class="item"><div class="item-dot"></div><div><div class="item-title">Electricity Rate</div><div class="item-desc">Cost per kWh defined by user or utility provider</div></div></div>
+          <div class="item"><div class="item-dot"></div><div><div class="item-title">User Commands</div><div class="item-desc">Controls and preferences from the mobile application</div></div></div>
+        </div>
+      </div>
+
+      <div class="connector connector-ip"><div class="arrow-track"><div class="dot"></div></div><div class="arrow-label">data</div></div>
+
+      <!-- PROCESS -->
+      <div class="column process-col">
+        <div class="col-header">
+          <div class="col-icon"><svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg></div>
+          <div><div class="col-label">Phase 02</div><div class="col-title">Process</div></div>
+        </div>
+        <div class="items-list">
+          <div class="item"><div class="item-dot"></div><div><div class="item-title">Sensor Measurement</div><div class="item-desc">Voltage & current sampled at high frequency per outlet</div></div></div>
+          <div class="item"><div class="item-dot"></div><div><div class="item-title">ESP32 Microcontroller</div><div class="item-desc">Dual-core processor handles all real-time computation</div></div></div>
+          <div class="item"><div class="item-dot"></div><div><div class="item-title">Power Computation</div><div class="item-desc">Calculates wattage (W) and energy consumed (kWh)</div></div></div>
+          <div class="item"><div class="item-dot"></div><div><div class="item-title">Cost Estimation</div><div class="item-desc">Multiplies kWh usage by electricity rate in real time</div></div></div>
+          <div class="item"><div class="item-dot"></div><div><div class="item-title">Cloud Transmission</div><div class="item-desc">Data pushed to cloud server over Wi-Fi via MQTT/HTTP</div></div></div>
+          <div class="item"><div class="item-dot"></div><div><div class="item-title">Mobile App Retrieval</div><div class="item-desc">App fetches and renders data from cloud in real time</div></div></div>
+        </div>
+      </div>
+
+      <div class="connector connector-po"><div class="arrow-track"><div class="dot"></div></div><div class="arrow-label">result</div></div>
+
+      <!-- OUTPUT -->
+      <div class="column output-col">
+        <div class="col-header">
+          <div class="col-icon"><svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+          <div><div class="col-label">Phase 03</div><div class="col-title">Output</div></div>
+        </div>
+        <div class="items-list">
+          <div class="item"><div class="item-dot"></div><div><div class="item-title">Real-Time Monitoring</div><div class="item-desc">Live electricity consumption displayed per smart outlet</div></div></div>
+          <div class="item"><div class="item-dot"></div><div><div class="item-title">Estimated Electricity Cost</div><div class="item-desc">Projected bill based on current usage and rate</div></div></div>
+          <div class="item"><div class="item-dot"></div><div><div class="item-title">Usage History & Dashboard</div><div class="item-desc">Historical trends, charts, and analytics per outlet</div></div></div>
+          <div class="item"><div class="item-dot"></div><div><div class="item-title">User Awareness</div><div class="item-desc">Informed energy habits leading to reduced consumption</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="summary">
+    <div class="summary-bar">
+      <div class="stat"><div class="stat-num">4</div><div class="stat-label">Input Parameters</div></div>
+      <div class="stat"><div class="stat-num">6</div><div class="stat-label">Processing Steps</div></div>
+      <div class="stat"><div class="stat-num">4</div><div class="stat-label">System Outputs</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PROJECT 2 ===== -->
+<div class="page" id="page-p2">
+  <div class="ipo-page-header">
+    <div>
+      <div class="ipo-back" onclick="showPage('landing')">
+        <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        Back to Overview
+      </div>
+      <div class="ipo-page-title">Smart IoT-Based Borrowing System</div>
+    </div>
+    <div class="ipo-page-badge" style="background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.28);color:#f59e0b;">IPO Model · Project 02</div>
+  </div>
+
+  <div class="ipo-wrapper">
+    <div class="ipo-flow">
+      <!-- INPUT -->
+      <div class="column input-col">
+        <div class="col-header">
+          <div class="col-icon"><svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#00e5ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+          <div><div class="col-label">Phase 01</div><div class="col-title">Input</div></div>
+        </div>
+        <div class="items-list">
+          <div class="item"><div class="item-dot"></div><div><div class="item-title">User Registration & Login</div><div class="item-desc">Credentials submitted via the mobile application</div></div></div>
+          <div class="item"><div class="item-dot"></div><div><div class="item-title">Item Information</div><div class="item-desc">Item ID, locker ID, and current availability status</div></div></div>
+          <div class="item"><div class="item-dot"></div><div><div class="item-title">Reservation Request</div><div class="item-desc">Submitted from the mobile application by the user</div></div></div>
+          <div class="item"><div class="item-dot"></div><div><div class="item-title">"Get Now" Command</div><div class="item-desc">User-triggered action to unlock and retrieve item</div></div></div>
+          <div class="item"><div class="item-dot"></div><div><div class="item-title">Return Confirmation</div><div class="item-desc">Signal from user confirming item has been returned</div></div></div>
+          <div class="item"><div class="item-dot"></div><div><div class="item-title">IoT Sensor Data</div><div class="item-desc">Locker lock/unlock status from hardware sensors</div></div></div>
+        </div>
+      </div>
+
+      <div class="connector connector-ip"><div class="arrow-track"><div class="dot"></div></div><div class="arrow-label">data</div></div>
+
+      <!-- PROCESS -->
+      <div class="column process-col">
+        <div class="col-header">
+          <div class="col-icon"><svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg></div>
+          <div><div class="col-label">Phase 02</div><div class="col-title">Process</div></div>
+        </div>
+        <div class="items-list">
+          <div class="item"><div class="item-dot"></div><div><div class="item-title">User Authentication</div><div class="item-desc">Verifies credentials and authorizes user access</div></div></div>
+          <div class="item"><div class="item-dot"></div><div><div class="item-title">Reservation Validation</div><div class="item-desc">Checks availability and locks item for the requester</div></div></div>
+          <div class="item"><div class="item-dot"></div><div><div class="item-title">Status Lifecycle Update</div><div class="item-desc">Transitions: available → reserved → borrowed → returned</div></div></div>
+          <div class="item"><div class="item-dot"></div><div><div class="item-title">Locker Unlock Command</div><div class="item-desc">IoT signal sent to locker when "Get Now" is triggered</div></div></div>
+          <div class="item"><div class="item-dot"></div><div><div class="item-title">Transaction Recording</div><div class="item-desc">Borrowing and return events logged in the database</div></div></div>
+          <div class="item"><div class="item-dot"></div><div><div class="item-title">Sensor Synchronization</div><div class="item-desc">Locker sensor state synced to mobile application</div></div></div>
+        </div>
+      </div>
+
+      <div class="connector connector-po"><div class="arrow-track"><div class="dot"></div></div><div class="arrow-label">result</div></div>
+
+      <!-- OUTPUT -->
+      <div class="column output-col">
+        <div class="col-header">
+          <div class="col-icon"><svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+          <div><div class="col-label">Phase 03</div><div class="col-title">Output</div></div>
+        </div>
+        <div class="items-list">
+          <div class="item"><div class="item-dot"></div><div><div class="item-title">Updated Item Status</div><div class="item-desc">Live availability displayed in the mobile application</div></div></div>
+          <div class="item"><div class="item-dot"></div><div><div class="item-title">Locker Unlocking</div><div class="item-desc">Physical access granted to the authorized borrower</div></div></div>
+          <div class="item"><div class="item-dot"></div><div><div class="item-title">Transaction Records</div><div class="item-desc">Borrower logs and identification records stored securely</div></div></div>
+          <div class="item"><div class="item-dot"></div><div><div class="item-title">Reservation Confirmation</div><div class="item-desc">Borrowing history and confirmations sent to user</div></div></div>
+          <div class="item"><div class="item-dot"></div><div><div class="item-title">Inventory Reports</div><div class="item-desc">Monitoring dashboards and reports for administrators</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="summary">
+    <div class="summary-bar">
+      <div class="stat"><div class="stat-num">6</div><div class="stat-label">Input Parameters</div></div>
+      <div class="stat"><div class="stat-num">6</div><div class="stat-label">Processing Steps</div></div>
+      <div class="stat"><div class="stat-num">5</div><div class="stat-label">System Outputs</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PROJECT 3 ===== -->
+<div class="page" id="page-p3">
+  <div class="ipo-page-header">
+    <div>
+      <div class="ipo-back" onclick="showPage('landing')">
+        <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        Back to Overview
+      </div>
+      <div class="ipo-page-title">IoT-Integrated Piezoelectric Footstep Energy Harvesting System</div>
+    </div>
+    <div class="ipo-page-badge" style="background:rgba(16,185,129,0.07);border:1px solid rgba(16,185,129,0.28);color:var(--output);">IPO Model · Project 03</div>
+  </div>
+
+  <div class="ipo-wrapper">
+    <div class="ipo-flow">
+      <!-- INPUT -->
+      <div class="column input-col">
+        <div class="col-header">
+          <div class="col-icon"><svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#00e5ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+          <div><div class="col-label">Phase 01</div><div class="col-title">Input</div></div>
+        </div>
+        <div class="items-list">
+          <div class="item"><div class="item-dot"></div><div><div class="item-title">Mechanical Force</div><div class="item-desc">From human footsteps at CTU entrances and walkways</div></div></div>
+          <div class="item"><div class="item-dot"></div><div><div class="item-title">Pressure Plate Sensors</div><div class="item-desc">Hardware that detects and measures footstep impact</div></div></div>
+          <div class="item"><div class="item-dot"></div><div><div class="item-title">Energy Harvesting Components</div><div class="item-desc">Piezoelectric elements that capture mechanical vibration</div></div></div>
+          <div class="item"><div class="item-dot"></div><div><div class="item-title">Microcontroller & Circuitry</div><div class="item-desc">Processing hardware and electrical management circuits</div></div></div>
+          <div class="item"><div class="item-dot"></div><div><div class="item-title">Mobile Application</div><div class="item-desc">Interface used for monitoring and system configuration</div></div></div>
+        </div>
+      </div>
+
+      <div class="connector connector-ip"><div class="arrow-track"><div class="dot"></div></div><div class="arrow-label">energy</div></div>
+
+      <!-- PROCESS -->
+      <div class="column process-col">
+        <div class="col-header">
+          <div class="col-icon"><svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg></div>
+          <div><div class="col-label">Phase 02</div><div class="col-title">Process</div></div>
+        </div>
+        <div class="items-list">
+          <div class="item"><div class="item-dot"></div><div><div class="item-title">Pressure Detection</div><div class="item-desc">Sensors detect and measure footstep force on plate</div></div></div>
+          <div class="item"><div class="item-dot"></div><div><div class="item-title">Energy Conversion</div><div class="item-desc">Mechanical force converted to electrical energy via piezo</div></div></div>
+          <div class="item"><div class="item-dot"></div><div><div class="item-title">Power Regulation & Storage</div><div class="item-desc">Generated power regulated, conditioned, and stored</div></div></div>
+          <div class="item"><div class="item-dot"></div><div><div class="item-title">Data Transmission</div><div class="item-desc">Energy metrics sent to mobile app for real-time display</div></div></div>
+        </div>
+      </div>
+
+      <div class="connector connector-po"><div class="arrow-track"><div class="dot"></div></div><div class="arrow-label">output</div></div>
+
+      <!-- OUTPUT -->
+      <div class="column output-col">
+        <div class="col-header">
+          <div class="col-icon"><svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg></div>
+          <div><div class="col-label">Phase 03</div><div class="col-title">Output</div></div>
+        </div>
+        <div class="items-list">
+          <div class="item"><div class="item-dot"></div><div><div class="item-title">Generated Electrical Energy</div><div class="item-desc">Usable low-power output harvested from foot traffic</div></div></div>
+          <div class="item"><div class="item-dot"></div><div><div class="item-title">Real-Time Energy Data</div><div class="item-desc">Generation metrics displayed live in the mobile app</div></div></div>
+          <div class="item"><div class="item-dot"></div><div><div class="item-title">User Awareness</div><div class="item-desc">Promotes renewable energy understanding and sustainability</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="summary">
+    <div class="summary-bar">
+      <div class="stat"><div class="stat-num">5</div><div class="stat-label">Input Parameters</div></div>
+      <div class="stat"><div class="stat-num">4</div><div class="stat-label">Processing Steps</div></div>
+      <div class="stat"><div class="stat-num">3</div><div class="stat-label">System Outputs</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const navTabs = document.querySelectorAll('.nav-tab');
+  const pageMap = { landing: 0, p1: 1, p2: 2, p3: 3 };
+
+  function showPage(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + id).classList.add('active');
+    navTabs.forEach(t => t.classList.remove('active'));
+    navTabs[pageMap[id]].classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>
